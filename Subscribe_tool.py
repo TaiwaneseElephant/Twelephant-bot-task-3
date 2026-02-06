@@ -8,7 +8,7 @@ import json
 signature_pattern = r"(?i)\[\[(?:(?:User(?:[ _]talk)?|UT?|用[戶户]|使用者):|Special:(?:Contrib(?:ution)?s|(?:用[戶户]|使用者)?(?:[貢贡][獻献]))/)"
 time_stamp_pattern = r"\d{4}年\d{1,2}月\d{1,2}日 \([一二三四五六日]\) \d{2}:\d{2} \(UTC\)"
 rx1 = re.compile(f"{signature_pattern}.*?{time_stamp_pattern}")
-config_page_pattern = re.compile("User:([^/]+)/subscription\.json")
+config_page_pattern = re.compile(r"User:([^/]+)/subscription\.json")
 
 def save(site, page, text:str, summary:str = "", add:bool = False, minor:bool = True, max_retry_times:int = 3):
     if not page.botMayEdit():
@@ -102,3 +102,4 @@ while True:
         page_dict = set_page_dict(template = template)
     except:
         pass
+
