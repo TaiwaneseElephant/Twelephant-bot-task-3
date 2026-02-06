@@ -8,9 +8,10 @@ import json
 signature_pattern = r"(?i)\[\[(?:(?:User(?:[ _]talk)?|UT?|用[戶户]|使用者):|Special:(?:Contrib(?:ution)?s|(?:用[戶户]|使用者)?(?:[貢贡][獻献]))/)"
 time_stamp_pattern = r"\d{4}年\d{1,2}月\d{1,2}日 \([一二三四五六日]\) \d{2}:\d{2} \(UTC\)"
 rx1 = re.compile(f"{signature_pattern}.*?{time_stamp_pattern}")
-config_page_pattern = re.compile(r"User:([^/]+)/subscription\.json")
+config_page_name_pattern = re.compile(r"User:([^/]+)/subscription\.js")
+config_page_content_pattern = re.compile(r'''var _addText = "\{\{User:Twelephant-bot/subscription\}\}";\n(\[[\s\S]*?\]);''')
 
-def save(site, page, text:str, summary:str = "", add:bool = False, minor:bool = True, max_retry_times:int = 3):
+def save(site, page, text:str, summary:str = "", add:bool = False, minor:bool = True, max_retry_times:int = 3) -> bool:
     if not page.botMayEdit():
         return False
     e = None
@@ -47,58 +48,66 @@ def send_message(site, talk_page_name:str, message:str, summary:str = "message s
     talk_page = pywikibot.Page(site, talk_page_name)
     save(site, talk_page, message, summary, add = True, minor = False)
 
-def check_subscribed_pages(site, user, pages):
-    rx2 = re.compile(f"{signature_pattern}\\s*{user.replace(' ', '[ _]')}.*?{time_stamp_pattern}")
-    for page in pages:
+def check_subscribed_pages(site, user:str, pages:dict) -> None:
+    rx2 = re.compile(f"{signature_pattern}\\s*{re.escape(user).replace(' ', '[ _]')}.*?{time_stamp_pattern}")
+    for page_name in pages:
+        page = pywikibot.Page(site, page_name)
+        latest_revision = page.get(force = True)
         latest_revision_id  = page.latest_revision_id
-        if latest_revision_id != pages[page]["latest_revision_id"]:
-            latest_revision = page.get(force = True)
-            sections_then = textlib.extract_sections(pages[page]["latest_revision"], site)
-            sections_now = textlib.extract_sections(latest_revision, site)
+        if latest_revision_id != pages[page_name]["latest_revision_id"]:
+            sections_then = textlib.extract_sections(pages[page_name]["latest_revision"], site).sections
+            sections_now = textlib.extract_sections(latest_revision, site).sections
             subscribed_sections = {}
-            for i in sections_then.sections:
-                title = i.title
-                if title in pages[page]["section_names"] and not title in subscribed_sections:
+            for i in sections_then:
+                title = i.title.strip()
+                if title in pages[page_name]["section_names"] and not title in subscribed_sections:
                     subscribed_sections[title] = rx1.findall(i.content)
-            for i in sections_now.sections:
-                title = i.title
+            for i in sections_now:
+                title = i.title.strip()
                 if title in subscribed_sections:
                     self_talk = rx2.findall(i.content)
                     ignore_talk = set(subscribed_sections[title] + self_talk)
                     for j in rx1.findall(i.content):
                         if j not in ignore_talk:
-                            send_message(site, talk_page_name = f"User talk:{user}", message = f"{{{{subst:User:Twelephant-bot/talkback|{page.title()}|{title}}}}}", summary = "回覆通知")
+                            send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/talkback|{page.title()}|{i.heading}}}}}", "回覆通知")
                             break
-            pages[page]["latest_revision_id"] = latest_revision_id
-            pages[page]["latest_revision"] = latest_revision
+            pages[page_name]["latest_revision_id"] = latest_revision_id
+            pages[page_name]["latest_revision"] = latest_revision
 
-def set_page_dict(template):
+def set_page_dict(site, template) -> dict:
     page_dict = {}
-    for json_page in template.getReferences(follow_redirects = True, only_template_inclusion = True, filter_redirects = False, namespaces = 2, content = True):
-        match = config_page_pattern.match(json_page.title())
+    for config_page in template.getReferences(follow_redirects = True, only_template_inclusion = True, filter_redirects = False, namespaces = 2, content = True):
+        match = config_page_name_pattern.match(config_page.title())
         if match is None:
             continue
         user = match.groups()[0].replace("_", " ")
         try:
-            config = json.loads(json_page.get())
+            match = config_page_content_pattern.match(config_page.get(force = True))
+            if match is None:
+                continue
+            config = json.loads(match.groups()[0])
             assert isinstance(config, list)
-            config = config[:-1]
             page_list = [(pywikibot.Page(site, i[0]), i[1]) for i in config]
-            page_dict[user] = {page : {"latest_revision" : page.get(), "latest_revision_id" : page.latest_revision_id, "section_names" : section_names} \
+            page_dict[user] = {page.title() : {"latest_revision" : str(page.get()), "latest_revision_id" : int(page.latest_revision_id), "section_names" : section_names} \
                                for page, section_names in page_list if page.exists()}
         except:
             continue
     return page_dict
 
-site = pywikibot.Site("wikipedia:zh")
-template = pywikibot.Page(site, "User:Twelephant-bot/subscription")
-page_dict = set_page_dict(template = template)
-while True:
-    for _ in range(6):
-        time.sleep(600)
-        for user, pages in page_dict.items():
-            check_subscribed_pages(site, user, pages)
-    try:
-        page_dict = set_page_dict(template = template)
-    except:
-        pass
+def run():
+    site = pywikibot.Site("wikipedia:zh")
+    template = pywikibot.Page(site, "User:Twelephant-bot/subscription")
+    page_dict = set_page_dict(site, template)
+    while True:
+        for _ in range(6):
+            time.sleep(60)
+            for user, pages in page_dict.items():
+                check_subscribed_pages(site, user, pages)
+                print(user)
+        try:
+            page_dict = set_page_dict(site, template)
+        except:
+            pass
+
+if __name__ == "__main__":
+    run()
