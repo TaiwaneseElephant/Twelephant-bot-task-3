@@ -100,7 +100,7 @@ def run():
     page_dict = set_page_dict(site, template)
     while True:
         for _ in range(6):
-            time.sleep(60)
+            time.sleep(600)
             for user, pages in page_dict.items():
                 check_subscribed_pages(site, user, pages)
                 print(user)
@@ -111,3 +111,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
