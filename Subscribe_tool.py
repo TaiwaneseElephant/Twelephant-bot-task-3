@@ -48,7 +48,7 @@ def send_message(site, talk_page_name:str, message:str, summary:str = "message s
     save(site, talk_page, message, summary, add = True, minor = False)
 
 def check_subscribed_pages(site, user, pages):
-    rx2 = re.compile(f"{signature_pattern}\s*{user.replace(' ', '[ _]')}.*?{time_stamp_pattern}")
+    rx2 = re.compile(f"{signature_pattern}\\s*{user.replace(' ', '[ _]')}.*?{time_stamp_pattern}")
     for page in pages:
         latest_revision_id  = page.latest_revision_id
         if latest_revision_id != pages[page]["latest_revision_id"]:
@@ -102,4 +102,3 @@ while True:
         page_dict = set_page_dict(template = template)
     except:
         pass
-
