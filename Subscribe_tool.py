@@ -79,7 +79,7 @@ def check_subscribed_pages(site, user:str, pages:dict) -> None:
                 pages[page_name]["latest_revision_id"] = latest_revision_id
                 pages[page_name]["latest_revision"] = latest_revision
         except Exception as e:
-            print(f"The attempt to check the page '{page_name}' was stopped because of the error below:\n{e}\nThe subscribed section are {subscribed_sections}.")
+            print(f"The attempt to check the page '{page_name}' was stopped because of the error below:\n{e}\nThe subscribed section are {pages[page_name]["section_names"]}.")
             continue
 
 def set_page_dict(site, template) -> dict:
@@ -119,3 +119,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
