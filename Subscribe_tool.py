@@ -51,28 +51,36 @@ def send_message(site, talk_page_name:str, message:str, summary:str = "message s
 def check_subscribed_pages(site, user:str, pages:dict) -> None:
     rx2 = re.compile(f"{signature_pattern}\\s*{re.escape(user).replace(' ', '[ _]')}.*?{time_stamp_pattern}")
     for page_name in pages:
-        page = pywikibot.Page(site, page_name)
-        latest_revision = page.get(force = True)
-        latest_revision_id  = page.latest_revision_id
-        if latest_revision_id != pages[page_name]["latest_revision_id"]:
-            sections_then = textlib.extract_sections(pages[page_name]["latest_revision"], site).sections
-            sections_now = textlib.extract_sections(latest_revision, site).sections
-            subscribed_sections = {}
-            for i in sections_then:
-                title = i.title.strip()
-                if title in pages[page_name]["section_names"] and not title in subscribed_sections:
-                    subscribed_sections[title] = rx1.findall(i.content)
-            for i in sections_now:
-                title = i.title.strip()
-                if title in subscribed_sections:
-                    self_talk = rx2.findall(i.content)
-                    ignore_talk = set(subscribed_sections[title] + self_talk)
-                    for j in rx1.findall(i.content):
-                        if j not in ignore_talk:
-                            send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/talkback|{page.title()}|{i.heading}}}}}", "回覆通知")
-                            break
-            pages[page_name]["latest_revision_id"] = latest_revision_id
-            pages[page_name]["latest_revision"] = latest_revision
+        try:
+            page = pywikibot.Page(site, page_name)
+            if not page.exists():
+                return
+            latest_revision = page.get(force = True)
+            latest_revision_id  = page.latest_revision_id
+            if latest_revision_id != pages[page_name]["latest_revision_id"]:
+                sections_then = textlib.extract_sections(pages[page_name]["latest_revision"], site).sections
+                sections_now = textlib.extract_sections(latest_revision, site).sections
+                subscribed_sections = {}
+                for i in sections_then:
+                    title = i.heading
+                    level = i.level
+                    if title in pages[page_name]["section_names"][0] and level == pages[page_name]["section_names"][1] and not title in subscribed_sections:
+                        subscribed_sections[(title, level)] = rx1.findall(i.content)
+                for i in sections_now:
+                    title = i.heading
+                    level = i.level
+                    if (title, level) in subscribed_sections:
+                        self_talk = rx2.findall(i.content)
+                        ignore_talk = set(subscribed_sections[title] + self_talk)
+                        for j in rx1.findall(i.content):
+                            if j not in ignore_talk:
+                                send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/talkback|{page.title()}|{i.heading}}}}}", "回覆通知")
+                                break
+                pages[page_name]["latest_revision_id"] = latest_revision_id
+                pages[page_name]["latest_revision"] = latest_revision
+        except Exception as e:
+            print(f"The attempt to check the page '{page_name}' was stopped because of the error below:\n{e}\nThe subscribed section are {subscribed_sections}.")
+            continue
 
 def set_page_dict(site, template) -> dict:
     page_dict = {}
@@ -111,4 +119,5 @@ def run():
 
 if __name__ == "__main__":
     run()
+
 
