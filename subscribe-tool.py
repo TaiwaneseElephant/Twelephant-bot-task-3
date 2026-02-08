@@ -74,7 +74,7 @@ def check_subscribed_pages(site, user:str, pages:dict) -> None:
                         ignore_talk = set(subscribed_sections[(title, level)] + self_talk)
                         for j in rx1.findall(i.content):
                             if j not in ignore_talk:
-                                send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/talkback|{page.title()}|{i.heading}}}}}", "回覆通知")
+                                send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/notification|{page.title()}|{i.heading}}}}}", "章節新留言通知 ")
                                 break
                 pages[page_name]["latest_revision_id"] = latest_revision_id
                 pages[page_name]["latest_revision"] = latest_revision
@@ -116,3 +116,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
