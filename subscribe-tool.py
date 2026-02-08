@@ -64,7 +64,7 @@ def check_subscribed_pages(site, user:str, pages:dict) -> None:
                 for i in sections_then:
                     title = i.heading
                     level = i.level
-                    if title in pages[page_name]["section_names"][0] and level == pages[page_name]["section_names"][1] and not title in subscribed_sections:
+                    if (title, level) in pages[page_name]["section_names"] and not title in subscribed_sections:
                         subscribed_sections[(title, level)] = rx1.findall(i.content)
                 for i in sections_now:
                     title = i.heading
@@ -116,4 +116,5 @@ def run():
 
 if __name__ == "__main__":
     run()
+
 
