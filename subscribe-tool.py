@@ -104,7 +104,7 @@ def set_page_dict(site, template) -> dict:
             page_dict[user] = {page.title() : {"latest_revision" : str(page.get()), "latest_revision_id" : int(page.latest_revision_id), "section_names" : section_names} \
                                for page, section_names in page_list if page.exists()}
         except Exception as e:
-            print(f"The attempt to check the page '{page_name}' was stopped because of the error below:\n{e}")
+            print(f"The attempt to check the page '{config_page.title()}' was stopped because of the error below:\n{e}")
             continue
     return page_dict
 
@@ -119,7 +119,7 @@ def run():
     for user, pages in page_dict.items():
         check_subscribed_pages(site, user, pages)
         print(user)
-
 if __name__ == "__main__":
     run()
+
 
