@@ -105,8 +105,8 @@ def set_page_dict(site, template) -> dict:
 def run():
     site = pywikibot.Site("wikipedia:zh")
     template = pywikibot.Page(site, "User:Twelephant-bot/subscription")
-    page_dict = set_page_dict(site, template)
     print("start")
+    page_dict = set_page_dict(site, template)
     time.sleep(600)
     for user, pages in page_dict.items():
         check_subscribed_pages(site, user, pages)
