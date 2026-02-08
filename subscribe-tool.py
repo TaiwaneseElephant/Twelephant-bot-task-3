@@ -71,7 +71,7 @@ def check_subscribed_pages(site, user:str, pages:dict) -> None:
                     level = i.level
                     if (title, level) in subscribed_sections:
                         self_talk = rx2.findall(i.content)
-                        ignore_talk = set(subscribed_sections[title] + self_talk)
+                        ignore_talk = set(subscribed_sections[(title, level)] + self_talk)
                         for j in rx1.findall(i.content):
                             if j not in ignore_talk:
                                 send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/talkback|{page.title()}|{i.heading}}}}}", "回覆通知")
@@ -116,5 +116,6 @@ def run():
 
 if __name__ == "__main__":
     run()
+
 
 
