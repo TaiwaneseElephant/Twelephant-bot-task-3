@@ -54,7 +54,7 @@ def check_subscribed_pages(site, user:str, pages:dict) -> None:
         try:
             page = pywikibot.Page(site, page_name)
             if not page.exists():
-                return
+                continue
             latest_revision = page.get(force = True)
             latest_revision_id  = page.latest_revision_id
             if latest_revision_id != pages[page_name]["latest_revision_id"]:
@@ -121,3 +121,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
