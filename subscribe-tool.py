@@ -64,18 +64,22 @@ def check_subscribed_pages(site, user:str, pages:dict) -> None:
                 for i in sections_then:
                     title = i.heading
                     level = i.level
-                    if (title, level) in pages[page_name]["section_names"] and not title in subscribed_sections:
-                        subscribed_sections[(title, level)] = rx1.findall(i.content)
+                    for j, k in pages[page_name]["section_names"]:
+                        if (title == j and level == k):
+                            subscribed_sections[(title, level)] = rx1.findall(i.content)
+                            break
                 for i in sections_now:
                     title = i.heading
                     level = i.level
-                    if (title, level) in subscribed_sections:
-                        self_talk = rx2.findall(i.content)
-                        ignore_talk = set(subscribed_sections[(title, level)] + self_talk)
-                        for j in rx1.findall(i.content):
-                            if j not in ignore_talk:
-                                send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/notification|{page.title()}|{i.heading}}}}}", "章節新留言通知 ")
-                                break
+                    for j, k in subscribed_sections:
+                        if (title == j and level == k):
+                            self_talk = rx2.findall(i.content)
+                            ignore_talk = set(subscribed_sections[(title, level)] + self_talk)
+                            for j in rx1.findall(i.content):
+                                if j not in ignore_talk:
+                                    send_message(site, f"User talk:{user}", f"{{{{subst:User:Twelephant-bot/notification|{page_name}|{title}}}}}", "章節新留言通知 ")
+                                    break
+                            break
                 pages[page_name]["latest_revision_id"] = latest_revision_id
                 pages[page_name]["latest_revision"] = latest_revision
         except Exception as e:
@@ -109,7 +113,7 @@ def run():
     page_dict = set_page_dict(site, template)
     record_page = pywikibot.Page(site, "User:Twelephant-bot/subscription_record.json")
     save(site, record_page, json.dumps(page_dict), "Update")
-    print("start")
+    print("Start!")
     time.sleep(600)
     for user, pages in page_dict.items():
         check_subscribed_pages(site, user, pages)
@@ -117,5 +121,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-
-
