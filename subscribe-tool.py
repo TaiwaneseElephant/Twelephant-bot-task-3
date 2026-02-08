@@ -103,7 +103,7 @@ def set_page_dict(site, template) -> dict:
             page_list = [(pywikibot.Page(site, i[0]), i[1]) for i in config]
             page_dict[user] = {page.title() : {"latest_revision" : str(page.get()), "latest_revision_id" : int(page.latest_revision_id), "section_names" : section_names} \
                                for page, section_names in page_list if page.exists()}
-        except:
+        except Exception as e:
             print(f"The attempt to check the page '{page_name}' was stopped because of the error below:\n{e}")
             continue
     return page_dict
@@ -122,3 +122,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
