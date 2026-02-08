@@ -58,6 +58,7 @@ def check_subscribed_pages(site, user:str, pages:dict) -> None:
             latest_revision = page.get(force = True)
             latest_revision_id  = page.latest_revision_id
             if latest_revision_id != pages[page_name]["latest_revision_id"]:
+                print("Comparison start!")
                 sections_then = textlib.extract_sections(pages[page_name]["latest_revision"], site).sections
                 sections_now = textlib.extract_sections(latest_revision, site).sections
                 subscribed_sections = {}
