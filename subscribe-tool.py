@@ -106,17 +106,11 @@ def run():
     site = pywikibot.Site("wikipedia:zh")
     template = pywikibot.Page(site, "User:Twelephant-bot/subscription")
     page_dict = set_page_dict(site, template)
-    while True:
-        for _ in range(6):
-            time.sleep(600)
-            for user, pages in page_dict.items():
-                check_subscribed_pages(site, user, pages)
-                print(user)
-        try:
-            page_dict = set_page_dict(site, template)
-        except:
-            pass
+    print("start")
+    time.sleep(600)
+    for user, pages in page_dict.items():
+        check_subscribed_pages(site, user, pages)
+        print(user)
 
 if __name__ == "__main__":
     run()
-
