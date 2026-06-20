@@ -14,7 +14,7 @@ banlogarchivemainpageoldformat = config["banlogarchivemainpageoldformat"]
 banlogarchivemainpagenewformat = config["banlogarchivemainpagenewformat"]
 banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "format":"json"}).json()["query"]["pages"][pageid]
 archivemainpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":archivemainpageid, "format":"json"}).json()["query"]["pages"][archivemainpageid]["revisions"][0]["*"]
-archivemainpagechanged = false
+archivemainpagechanged = False
 banlogcontent = banlogpage["revisions"][0]["*"]
 banlogtitle = banlogpage["title"]
 banlogs = []
@@ -38,7 +38,7 @@ for ban, year in banlogs:
       banlogarchivepages[year] = banlogarchivepageheader + ban
       archivemainpage = re.sub(r"(.+)$", (banlogarchivemainpageoldformat % r"\1"), banlogarchivemainpage)
       archivemainpage += banlogarchivemainpagenewformat %  (banlogarchivepagetitleformat % (banlogtitle, year))
-      archivemainpagechanged = true
+      archivemainpagechanged = True
     else:
       banlogarchivepages[year] = banlogarchivepage["revisions"][0]["*"] + ban
 print(banlogarchivepages)
