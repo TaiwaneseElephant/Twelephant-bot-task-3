@@ -1,5 +1,5 @@
 import requests, json, os, re, datetime
-apiurl = "https://test.wikipedia.org/w/api.php"
+apiurl = "https://zh.wikipedia.org/w/api.php"
 headers = {
     "user-agent": "Twelephant-bot"
 }
