@@ -6,10 +6,15 @@ headers = {
 config = json.loads(list(requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", \
           "titles":"User:Twelephant-bot/task/3/config.json", "format":"json"}).json()["query"]["pages"].values())[0]["revisions"][0]["*"])
 pageid = config["pageid"]
+archivemainpageid = config["archivemainpageid"]
 banlogtemplate = config["banlogtemplate"]
 banlogarchivepageheader = config["banlogarchivepageheader"]
 banlogarchivepagetitleformat = config["banlogarchivepagetitleformat"]
+banlogarchivemainpageoldformat = config["banlogarchivemainpageoldformat"]
+banlogarchivemainpagenewformat = config["banlogarchivemainpagenewformat"]
 banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "format":"json"}).json()["query"]["pages"][pageid]
+archivemainpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":archivemainpageid, "format":"json"}).json()["query"]["pages"][pageid]["revisions"][0]["*"]
+archivemainpagechanged = false
 banlogcontent = banlogpage["revisions"][0]["*"]
 banlogtitle = banlogpage["title"]
 banlogs = []
@@ -31,7 +36,9 @@ for ban, year in banlogs:
     "prop":"revisions", "rvprop":"content", "titles":(banlogarchivepagetitleformat % (banlogtitle, year)), "format":"json"}).json()["query"]["pages"].values())[0]
     if"missing" in banlogarchivepage.keys():
       banlogarchivepages[year] = banlogarchivepageheader + ban
-      print(banlogarchivepagetitleformat % (banlogtitle, year))
+      archivemainpage = re.sub(r"(.+)$", (banlogarchivemainpageoldformat % r"\1"), banlogarchivemainpage)
+      archivemainpage += banlogarchivemainpagenewformat %  (banlogarchivepagetitleformat % (banlogtitle, year))
+      archivemainpagechanged = true
     else:
       banlogarchivepages[year] = banlogarchivepage["revisions"][0]["*"] + ban
 print(banlogarchivepages)
@@ -41,8 +48,10 @@ if len(banlogarchivepages.keys()) > 0:
   session.post(apiurl, headers=headers, params={"action":"login"}, data={"lgname":"Twelephant-bot", "lgpassword":os.envar("BOTPWD"), "lgtoken":logintoken})
   csrftoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"csrf", "format":"json"}).json()["query"]["tokens"]["csrftoken"]
   for year, content in banlogarchivepages.items():
-    csrftoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"csrf", "format":"json"}).json()["query"]["tokens"]["csrftoken"]
     session.post(apiurl, headers=headers, params={"action":"edit"}, data={"title":(banlogarchivepagetitleformat % (banlogtitle, year)), \
                                                                           "text":content, "summary":"自動存檔已過期的禁制", "minor":True, "bot":True, "token":csrftoken})
   session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":pageid, "text":banlogcontent, "summary":"自動存檔已過期的禁制", \
+                                                                        "minor":True, "bot":True, "token":csrftoken})
+if archivemainpagechanged:
+    session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":archivemainpageid, "text":archivemainpage, "summary":"自動更新禁制存檔列表", \
                                                                         "minor":True, "bot":True, "token":csrftoken})
