@@ -36,7 +36,7 @@ for ban, year in banlogs:
     "prop":"revisions", "rvprop":"content", "titles":(banlogarchivepagetitleformat % (banlogtitle, year)), "format":"json"}).json()["query"]["pages"].values())[0]
     if"missing" in banlogarchivepage.keys():
       banlogarchivepages[year] = banlogarchivepageheader + ban
-      archivemainpage = re.sub(r"(.+)$", (banlogarchivemainpageoldformat % r"\1"), banlogarchivemainpage)
+      archivemainpage = re.sub(r"(.+)$", (banlogarchivemainpageoldformat % r"\1"), archivemainpage)
       archivemainpage += banlogarchivemainpagenewformat %  (banlogarchivepagetitleformat % (banlogtitle, year))
       archivemainpagechanged = True
     else:
