@@ -12,7 +12,8 @@ banlogarchivepageheader = config["banlogarchivepageheader"]
 banlogarchivepagetitleformat = config["banlogarchivepagetitleformat"]
 banlogarchivemainpageoldformat = config["banlogarchivemainpageoldformat"]
 banlogarchivemainpagenewformat = config["banlogarchivemainpagenewformat"]
-banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "format":"json"}).json()["query"]["pages"][pageid]
+banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "format":"json"})\
+.json()["query"]["pages"][pageid]
 archivemainpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":archivemainpageid, "format":"json"})\
           .json()["query"]["pages"][archivemainpageid]["revisions"][0]["*"]
 archivemainpagechanged = False
