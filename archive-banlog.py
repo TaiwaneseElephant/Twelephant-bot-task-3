@@ -47,8 +47,8 @@ for ban, year in banlogs:
       archivemainpagechanged = True
     else:
       banlogarchivepages[year] = banlogarchivepage["revisions"][0]["*"] + ban
-print(anlogcontent)
-if len(banlogarchivepages.keys()) > 0:
+print(banlogcontent)
+if false and len(banlogarchivepages.keys()) > 0:
   session = requests.Session()
   logintoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"login", "format":"json"}).json()["query"]["tokens"]["logintoken"]
   session.post(apiurl, headers=headers, params={"action":"login"}, data={"lgname":"Twelephant-bot", "lgpassword":os.environ["BOTPWD"], "lgtoken":logintoken})
