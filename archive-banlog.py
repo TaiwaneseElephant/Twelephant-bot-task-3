@@ -57,7 +57,7 @@ if len(banlogarchivepages.keys()) > 0:
     session.post(apiurl, headers=headers, params={"action":"edit"}, data={"title":(banlogarchivepagetitleformat % (banlogtitle, year)), \
                                                                           "text":content, "summary":"自動存檔已過期的禁制", "minor":True, "bot":True, "token":csrftoken})
   response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(pageid), "text":banlogcontent, "summary":"自動存檔已過期的禁制", \
-                                                                        "minor":True, "bot":True, "token":csrftoken})
+                                                                        "minor":True, "bot":True, "token":csrftoken, "format": "json"})
   print(response.json())
 if archivemainpagechanged:
     session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(archivemainpageid), "text":archivemainpage, "summary":"自動更新禁制存檔列表", \
