@@ -23,11 +23,11 @@ banlogs = []
 now = datetime.datetime.now(datetime.timezone.utc)
 for ban in re.finditer(r"\{\{\s*%s\s*\|[^}]+?\}\}\s*" % banlogtemplate, banlogcontent):
   ban = ban.group()
-  print(ban)
   ban_has_end = re.search(r"\|\s*end\s*=\s*(\d+)", ban)
   if ban_has_end:
     date = datetime.datetime.strptime((ban_has_end.groups()[0]), "%Y%m%d%H%M").replace(tzinfo=datetime.timezone.utc)
     if date < now:
+      print(ban)
       banlogs.append([ban, date.year])
       banlogcontent = banlogcontent.replace(ban, "")
 banlogarchivepages = {}
