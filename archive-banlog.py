@@ -53,10 +53,10 @@ if len(banlogarchivepages.keys()) > 0:
   session.post(apiurl, headers=headers, params={"action":"login"}, data={"lgname":"Twelephant-bot", "lgpassword":os.environ["BOTPWD"], "lgtoken":logintoken})
   csrftoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"csrf", "format":"json"}).json()["query"]["tokens"]["csrftoken"]
   for year, content in banlogarchivepages.items():
-    session.post(apiurl, headers=headers, params={"action":"edit"}, data={"titles":(banlogarchivepagetitleformat % (banlogtitle, year)), \
+    session.post(apiurl, headers=headers, params={"action":"edit"}, data={"title":(banlogarchivepagetitleformat % (banlogtitle, year)), \
                                                                           "text":content, "summary":"自動存檔已過期的禁制", "minor":True, "bot":True, "token":csrftoken})
-  session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageids":pageid, "text":banlogcontent, "summary":"自動存檔已過期的禁制", \
+  session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(pageid), "text":banlogcontent, "summary":"自動存檔已過期的禁制", \
                                                                         "minor":True, "bot":True, "token":csrftoken})
 if archivemainpagechanged:
-    session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageids":archivemainpageid, "text":archivemainpage, "summary":"自動更新禁制存檔列表", \
+    session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(archivemainpageid), "text":archivemainpage, "summary":"自動更新禁制存檔列表", \
                                                                         "minor":True, "bot":True, "token":csrftoken})
