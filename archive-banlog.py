@@ -32,9 +32,9 @@ for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}\\
     if date < now:
       print(ban)
       banlogs.append([ban, date.year])
-      banlogcontent = banlogcontent.replace(ban, "")
 banlogarchivepages = {}
 for ban, year in banlogs:
+  banlogcontent = banlogcontent.replace(ban, "")
   if year in banlogarchivepages.keys():
     banlogarchivepages[year] += ban
   else:
