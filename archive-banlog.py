@@ -21,7 +21,7 @@ banlogcontent = banlogpage["revisions"][0]["*"]
 banlogtitle = banlogpage["title"]
 banlogs = []
 now = datetime.datetime.now(datetime.timezone.utc)
-for ban in re.finditer(r"\{\{\s*%s\s*\|[^\s\S]+?\}\}\n" % banlogtemplate, banlogcontent):
+for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|(?:(?!\\{{\\{{{banlogtemplate})[^\\s\\S])+?\\}}\\}}\\n", banlogcontent):
   ban = ban.group()
   print(ban)
   ban_has_end = re.search(r"\|\s*end\s*=\s*(\d+)", ban)
