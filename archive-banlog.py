@@ -1,4 +1,4 @@
-import requests, json, os, re, datetime
+import requests, json, os, re, datetime, time
 apiurl = "https://zh.wikipedia.org/w/api.php"
 headers = {
     "user-agent": "Twelephant-bot"
@@ -51,3 +51,4 @@ if len(banlogarchivepages.keys()) > 0:
   response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":pageid, "text":banlogcontent, "summary":summary, \
                                                                         "minor":True, "bot":True, "token":csrftoken, "format": "json"})
   print(response.json())
+time.sleep("120")
