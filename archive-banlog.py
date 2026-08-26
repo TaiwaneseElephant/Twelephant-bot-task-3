@@ -3,12 +3,13 @@ apiurl = "https://zh.wikipedia.org/w/api.php"
 headers = {
     "user-agent": "Twelephant-bot"
 }
-config = json.loads(list(requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", \
-          "titles":"User:Twelephant-bot/task/3/config.json", "format":"json"}).json()["query"]["pages"].values())[0]["revisions"][0]["*"])
+config = json.loads(requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", \
+          "titles":"User:Twelephant-bot/task/3/config.json", "formatversion":2, "format":"json"}).json()["query"]["pages"][0]["revisions"][0]["content"])
 pageid = config["pageid"]
 banlogtemplate = config["banlogtemplate"]
 banlogarchivepageheader = config["banlogarchivepageheader"]
 banlogarchivepagetitleformat = config["banlogarchivepagetitleformat"]
+summary = config["summary"]
 banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "formatversion":2, "format":"json"})\
 .json()["query"]["pages"][0]
 banlogcontent = banlogpage["revisions"][0]["content"]
@@ -46,7 +47,7 @@ if len(banlogarchivepages.keys()) > 0:
   csrftoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"csrf", "format":"json"}).json()["query"]["tokens"]["csrftoken"]
   for year, content in banlogarchivepages.items():
     session.post(apiurl, headers=headers, params={"action":"edit"}, data={"title":(banlogarchivepagetitleformat % (banlogtitle, year)), \
-                                                                          "text":content, "summary":"自動存檔已過期的禁制", "minor":True, "bot":True, "token":csrftoken})
-  response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(pageid), "text":banlogcontent, "summary":"自動存檔已過期的禁制", \
+                                                                          "text":content, "summary":summary, "minor":True, "bot":True, "token":csrftoken})
+  response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(pageid), "text":banlogcontent, "summary":summary, \
                                                                         "minor":True, "bot":True, "token":csrftoken, "format": "json"})
   print(response.json())
