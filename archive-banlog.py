@@ -43,11 +43,11 @@ print(banlogcontent)
 if len(banlogarchivepages.keys()) > 0:
   session = requests.Session()
   logintoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"login", "format":"json"}).json()["query"]["tokens"]["logintoken"]
-  session.post(apiurl, headers=headers, params={"action":"login"}, data={"lgname":"Twelephant-bot", "lgpassword":BOTPWB, "lgtoken":logintoken})
+  session.post(apiurl, headers=headers, params={"action":"login"}, data={"lgname":"Twelephant-bot", "lgpassword":BOTPWD, "lgtoken":logintoken})
   csrftoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"csrf", "format":"json"}).json()["query"]["tokens"]["csrftoken"]
   for year, content in banlogarchivepages.items():
     session.post(apiurl, headers=headers, params={"action":"edit"}, data={"title":(banlogarchivepagetitleformat % (banlogtitle, year)), \
                                                                           "text":content, "summary":summary, "minor":True, "bot":True, "token":csrftoken})
-  response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(pageid), "text":banlogcontent, "summary":summary, \
+  response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":pageid, "text":banlogcontent, "summary":summary, \
                                                                         "minor":True, "bot":True, "token":csrftoken, "format": "json"})
   print(response.json())
