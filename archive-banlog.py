@@ -6,18 +6,12 @@ headers = {
 config = json.loads(list(requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", \
           "titles":"User:Twelephant-bot/task/3/config.json", "format":"json"}).json()["query"]["pages"].values())[0]["revisions"][0]["*"])
 pageid = config["pageid"]
-archivemainpageid = config["archivemainpageid"]
 banlogtemplate = config["banlogtemplate"]
 banlogarchivepageheader = config["banlogarchivepageheader"]
 banlogarchivepagetitleformat = config["banlogarchivepagetitleformat"]
-banlogarchivemainpageoldformat = config["banlogarchivemainpageoldformat"]
-banlogarchivemainpagenewformat = config["banlogarchivemainpagenewformat"]
-banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "format":"json"})\
-.json()["query"]["pages"][pageid]
-archivemainpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":archivemainpageid, "format":"json"})\
-          .json()["query"]["pages"][archivemainpageid]["revisions"][0]["*"]
-archivemainpagechanged = False
-banlogcontent = banlogpage["revisions"][0]["*"]
+banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "formatversion":2, "format":"json"})\
+.json()["query"]["pages"][0]
+banlogcontent = banlogpage["revisions"][0]["content"]
 banlognewcontent = ""
 banlogtitle = banlogpage["title"]
 banlogs = []
@@ -38,15 +32,12 @@ for ban, year in banlogs:
   if year in banlogarchivepages.keys():
     banlogarchivepages[year] += ban
   else:
-    banlogarchivepage = list(requests.get(apiurl, headers=headers, params={"action":"query", \
-    "prop":"revisions", "rvprop":"content", "titles":(banlogarchivepagetitleformat % (banlogtitle, year)), "format":"json"}).json()["query"]["pages"].values())[0]
+    banlogarchivepage = requests.get(apiurl, headers=headers, params={"action":"query", \
+    "prop":"revisions", "rvprop":"content", "titles":(banlogarchivepagetitleformat % (banlogtitle, year)), "formatversion":2, "format":"json"}).json()["query"]["pages"][0]
     if"missing" in banlogarchivepage.keys():
       banlogarchivepages[year] = banlogarchivepageheader + ban
-      archivemainpage = re.sub(r"(.+)$", (banlogarchivemainpageoldformat % r"\1"), archivemainpage)
-      archivemainpage += banlogarchivemainpagenewformat %  (banlogarchivepagetitleformat % (banlogtitle, year))
-      archivemainpagechanged = True
     else:
-      banlogarchivepages[year] = banlogarchivepage["revisions"][0]["*"] + ban
+      banlogarchivepages[year] = banlogarchivepage["revisions"][0]["content"] + ban
 print(banlogcontent)
 if len(banlogarchivepages.keys()) > 0:
   session = requests.Session()
@@ -59,6 +50,3 @@ if len(banlogarchivepages.keys()) > 0:
   response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(pageid), "text":banlogcontent, "summary":"自動存檔已過期的禁制", \
                                                                         "minor":True, "bot":True, "token":csrftoken, "format": "json"})
   print(response.json())
-if archivemainpagechanged:
-    session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":int(archivemainpageid), "text":archivemainpage, "summary":"自動更新禁制存檔列表", \
-                                                                        "minor":True, "bot":True, "token":csrftoken})
