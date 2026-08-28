@@ -41,7 +41,7 @@ for ban, year in banlogs:
       banlogarchivepages[year] = banlogarchivepageheader + ban
     else:
       banlogarchivepages[year] = banlogarchivepage["revisions"][0]["content"] + ban
-    banlogarchivepagesbannum[year] = 0
+    banlogarchivepagesbannum[year] = 1
 print(banlogcontent)
 if len(banlogarchivepages.keys()) > 0:
   session = requests.Session()
