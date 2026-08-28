@@ -28,10 +28,12 @@ for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}\\
       print(ban)
       banlogs.append([ban, date.year])
 banlogarchivepages = {}
+banlogarchivepagesbannum = {}
 for ban, year in banlogs:
   banlogcontent = banlogcontent.replace(ban, "")
   if year in banlogarchivepages.keys():
     banlogarchivepages[year] += ban
+    banlogarchivepagesbannum[year] += 1
   else:
     banlogarchivepage = requests.get(apiurl, headers=headers, params={"action":"query", \
     "prop":"revisions", "rvprop":"content", "titles":(banlogarchivepagetitleformat % (banlogtitle, year)), "formatversion":2, "format":"json"}).json()["query"]["pages"][0]
@@ -39,6 +41,7 @@ for ban, year in banlogs:
       banlogarchivepages[year] = banlogarchivepageheader + ban
     else:
       banlogarchivepages[year] = banlogarchivepage["revisions"][0]["content"] + ban
+    banlogarchivepagesbannum[year] = 0
 print(banlogcontent)
 if len(banlogarchivepages.keys()) > 0:
   session = requests.Session()
@@ -47,8 +50,8 @@ if len(banlogarchivepages.keys()) > 0:
   csrftoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"csrf", "format":"json"}).json()["query"]["tokens"]["csrftoken"]
   for year, content in banlogarchivepages.items():
     session.post(apiurl, headers=headers, params={"action":"edit"}, data={"title":(banlogarchivepagetitleformat % (banlogtitle, year)), \
-                                                                          "text":content, "summary":summary, "minor":True, "bot":True, "token":csrftoken})
-  response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":pageid, "text":banlogcontent, "summary":summary, \
+                                                                          "text":content, "summary":(summary % banlogarchivepagesbannum[year]), "minor":True, "bot":True, "token":csrftoken})
+  response =session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":pageid, "text":banlogcontent, "summary":(summary % len(banlogs)), \
                                                                         "minor":True, "bot":True, "token":csrftoken, "format": "json"})
   print(response.json())
 time.sleep(300)
