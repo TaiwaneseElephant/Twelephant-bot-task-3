@@ -7,22 +7,22 @@ headers = {
 config = requests.get(f"https://{site}/w/index.php?title=User:Twelephant-bot/task/3/config.json&action=raw&ctype=application/json", headers=headers).json()
 pageid = config["pageid"]
 banlogtemplate = config["banlogtemplate"]
+banlogtemplateendtimeparam = config["banlogtemplateendtimeparam"]
 banlogarchivepageheader = config["banlogarchivepageheader"]
 banlogarchivepagetitleformat = config["banlogarchivepagetitleformat"]
 summary = config["summary"]
 banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "formatversion":2, "format":"json"})\
 .json()["query"]["pages"][0]
 banlogcontent = banlogpage["revisions"][0]["content"]
-banlognewcontent = ""
 banlogtitle = banlogpage["title"]
 banlogs = []
 now = datetime.datetime.now(datetime.timezone.utc)
 for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}\\n", banlogcontent):
   ban = ban.group()
   print(ban)
-  ban_has_end = re.search(r"\|\s*end\s*=\s*(\d+)", ban)
-  if ban_has_end:
-    date = datetime.datetime.strptime((ban_has_end.groups()[0]), "%Y%m%d%H%M").replace(tzinfo=datetime.timezone.utc)
+  ban_endtime = re.search(fr"\|\s*{banlogtemplateendtimeparam}\s*=\s*(\d+)", ban)
+  if ban_endtime:
+    date = datetime.datetime.strptime((ban_endtime.groups()[0]), "%Y%m%d%H%M").replace(tzinfo=datetime.timezone.utc)
     print(date)
     if date < now:
       print(ban)
