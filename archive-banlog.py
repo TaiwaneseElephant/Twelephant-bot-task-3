@@ -1,10 +1,10 @@
-import requests, json, os, re, datetime, time
-apiurl = "https://zh.wikipedia.org/w/api.php"
+import requests, json, re, datetime, time
+site = "zh.wikipedia.org"
+apiurl = f"https://{site}/w/api.php"
 headers = {
     "user-agent": "Twelephant-bot"
 }
-config = json.loads(requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", \
-          "titles":"User:Twelephant-bot/task/3/config.json", "formatversion":2, "format":"json"}).json()["query"]["pages"][0]["revisions"][0]["content"])
+config = requests.get(f"https://{site}/w/index.php?title=User:Twelephant-bot/task/3/config.json&action=raw&ctype=application/json").json()
 pageid = config["pageid"]
 banlogtemplate = config["banlogtemplate"]
 banlogarchivepageheader = config["banlogarchivepageheader"]
