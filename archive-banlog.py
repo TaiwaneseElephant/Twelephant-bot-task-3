@@ -4,7 +4,7 @@ apiurl = f"https://{site}/w/api.php"
 headers = {
     "user-agent": "Twelephant-bot"
 }
-config = requests.get(f"https://{site}/w/index.php?title=User:Twelephant-bot/task/3/config.json&action=raw&ctype=application/json").json()
+config = requests.get(f"https://{site}/w/index.php?title=User:Twelephant-bot/task/3/config.json&action=raw&ctype=application/json", headers=headers).json()
 pageid = config["pageid"]
 banlogtemplate = config["banlogtemplate"]
 banlogarchivepageheader = config["banlogarchivepageheader"]
