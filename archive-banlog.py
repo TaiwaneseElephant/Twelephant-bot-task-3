@@ -11,10 +11,13 @@ banlogtemplateendtimeparam = config["banlogtemplateendtimeparam"]
 banlogarchivepageheader = config["banlogarchivepageheader"]
 banlogarchivepagetitleformat = config["banlogarchivepagetitleformat"]
 summary = config["summary"]
-banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "formatversion":2, "format":"json"})\
-.json()["query"]["pages"][0]
-banlogcontent = banlogpage["revisions"][0]["content"]
-banlogtitle = banlogpage["title"]
+banlogpage = requests.get(apiurl, headers=headers, params={"action":"query", "prop":"revisions", "rvprop":"content", "pageids":pageid, "formatversion":2, "format":"json"}).json()
+try:
+    banlogcontent = banlogpage["query"]["pages"][0]["revisions"][0]["content"]
+    banlogtitle = banlogpage["query"]["pages"][0]["title"]
+except Exception as e:
+    print(banlogpage)
+    raise e
 banlogs = []
 now = datetime.datetime.now(datetime.timezone.utc)
 for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}\\n", banlogcontent):
