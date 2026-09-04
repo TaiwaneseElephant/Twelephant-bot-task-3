@@ -44,9 +44,11 @@ for ban, year in banlogs:
     banlogarchivepagesbannum[year] = 1
 print(banlogcontent)
 if len(banlogarchivepages.keys()) > 0:
+  with open("password.json", "r") as f:
+    SECRET = json.load(f)
   session = requests.Session()
   logintoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"login", "format":"json"}).json()["query"]["tokens"]["logintoken"]
-  session.post(apiurl, headers=headers, params={"action":"login"}, data={"lgname":"Twelephant-bot", "lgpassword":BOTPWD, "lgtoken":logintoken})
+  session.post(apiurl, headers=headers, params={"action":"login"}, data={"lgname":SECRET["ACCOUNT"], "lgpassword":SECRET["BOTPWD"], "lgtoken":logintoken})
   csrftoken = session.get(apiurl, headers=headers, params={"action":"query", "meta":"tokens", "type":"csrf", "format":"json"}).json()["query"]["tokens"]["csrftoken"]
   for year, content in banlogarchivepages.items():
     session.post(apiurl, headers=headers, params={"action":"edit"}, data={"title":(banlogarchivepagetitleformat % (banlogtitle, year)), \
