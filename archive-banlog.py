@@ -7,7 +7,7 @@ def main():
         "user-agent": "Twelephant-bot"
     }
     config = requests.get(f"https://{site}/w/index.php?title=User:Twelephant-bot/task/3/config.json&action=raw&ctype=application/json", headers=headers).json()
-    if !config["Enable"]:
+    if not config["Enable"]:
         return
     pageid = config["pageid"]
     banlogtemplate = config["banlogtemplate"]
@@ -20,10 +20,7 @@ def main():
         banlogcontent = banlogpage["query"]["pages"][0]["revisions"][0]["content"]
         banlogtitle = banlogpage["query"]["pages"][0]["title"]
     except Exception as e:
-        print(e)
-        print(config)
-        print(banlogpage)
-        raise e
+        raise Exception(f"{banlogcontent}{config}")
     banlogs = []
     now = datetime.datetime.now(datetime.timezone.utc)
     for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}\\n", banlogcontent):
