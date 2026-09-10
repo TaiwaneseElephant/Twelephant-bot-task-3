@@ -61,7 +61,7 @@ def main():
                                                                                 "text":content, "summary":(summary % banlogarchivepagesbannum[year]), "minor":True, "bot":True, "token":csrftoken})
         response = session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":pageid, "text":banlogcontent, "summary":(summary % len(banlogs)), \
                                                                               "minor":True, "bot":True, "token":csrftoken, "format": "json"})
-      print(response.json())
+        print(response.json())
     time.sleep(300)
 
 main()
