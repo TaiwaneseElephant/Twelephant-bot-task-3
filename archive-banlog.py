@@ -1,4 +1,4 @@
-import requests, json, re, datetime, time
+import requests, json, re, datetime
 
 def main():
     site = "zh.wikipedia.org"
@@ -29,29 +29,29 @@ def main():
     banlogs = []
     now = datetime.datetime.now(datetime.timezone.utc)
     for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}\\n", banlogcontent):
-      ban = ban.group()
-      print(ban)
-      ban_endtime = re.search(fr"\|\s*{banlogtemplateendtimeparam}\s*=\s*(\d+)", ban)
-      if ban_endtime:
-        date = datetime.datetime.strptime((ban_endtime.groups()[0]), "%Y%m%d%H%M").replace(tzinfo=datetime.timezone.utc)
-        print(date)
-        if date < now:
-          print(ban)
-          banlogs.append([ban, date.year])
+        ban = ban.group()
+        print(ban)
+        ban_endtime = re.search(fr"\|\s*{banlogtemplateendtimeparam}\s*=\s*(\d+)", ban)
+        if ban_endtime:
+            date = datetime.datetime.strptime((ban_endtime.groups()[0]), "%Y%m%d%H%M").replace(tzinfo=datetime.timezone.utc)
+            print(date)
+            if date < now:
+                print(ban)
+                banlogs.append([ban, date.year])
     banlogarchivepages = {}
     banlogarchivepagesbannum = {}
     for ban, year in banlogs:
-      banlogcontent = banlogcontent.replace(ban, "")
-      if year in banlogarchivepages.keys():
-        banlogarchivepages[year] += ban
-        banlogarchivepagesbannum[year] += 1
-      else:
-        banlogarchivepage = session.get(apiurl, headers=headers, params={"action":"query", \
-        "prop":"revisions", "rvprop":"content", "titles":(banlogarchivepagetitleformat % (banlogtitle, year)), "formatversion":2, "format":"json"}).json()["query"]["pages"][0]
-        if"missing" in banlogarchivepage.keys():
-          banlogarchivepages[year] = banlogarchivepageheader + ban
+        banlogcontent = banlogcontent.replace(ban, "")
+        if year in banlogarchivepages.keys():
+            banlogarchivepages[year] += ban
+            banlogarchivepagesbannum[year] += 1
         else:
-          banlogarchivepages[year] = banlogarchivepage["revisions"][0]["content"] + ban
+            banlogarchivepage = session.get(apiurl, headers=headers, params={"action":"query", \
+            "prop":"revisions", "rvprop":"content", "titles":(banlogarchivepagetitleformat % (banlogtitle, year)), "formatversion":2, "format":"json"}).json()["query"]["pages"][0]
+            if"missing" in banlogarchivepage.keys():
+                banlogarchivepages[year] = banlogarchivepageheader + ban
+            else:
+                banlogarchivepages[year] = banlogarchivepage["revisions"][0]["content"] + ban
         banlogarchivepagesbannum[year] = 1
     print(banlogcontent)
     if len(banlogarchivepages.keys()) > 0:
@@ -62,6 +62,5 @@ def main():
         response = session.post(apiurl, headers=headers, params={"action":"edit"}, data={"pageid":pageid, "text":banlogcontent, "summary":(summary % len(banlogs)), \
                                                                               "minor":True, "bot":True, "token":csrftoken, "format": "json"})
         print(response.json())
-    time.sleep(300)
 
 main()
