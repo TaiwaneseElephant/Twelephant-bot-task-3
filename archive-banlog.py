@@ -28,7 +28,7 @@ def main():
         raise Exception(f"{e}\n{banlogcontent}\n{config}")
     banlogs = []
     now = datetime.datetime.now(datetime.timezone.utc)
-    for ban in re.finditer(f"\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}\\n", banlogcontent):
+    for ban in re.finditer(f"\\n\\{{\\{{\\s*{banlogtemplate}\\s*\\|[\\s\\S]+?\\}}\\}}", banlogcontent):
         ban = ban.group()
         print(ban)
         ban_endtime = re.search(fr"\|\s*{banlogtemplateendtimeparam}\s*=\s*(\d+)", ban)
